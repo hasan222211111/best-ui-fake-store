@@ -1,87 +1,116 @@
-const allSections = document.getElementById("all-sections");
+let cart=[]   // initially cart ki value empty hai,agar yeh nahi kro ghy tu wo add nahi kre gha array mein
+let productsData=[] //yeh products ko render krta hai
 
-const sections = [
-  { title: "Featured Products", desc: "Handpicked top items just for you" },
-  { title: "New Arrivals", desc: "Check out the latest additions" },
-  { title: "Best Sellers", desc: "Most popular products our customers love" },
-  { title: "On Sale", desc: "Great deals and discounts available now" },
-  { title: "Recommended", desc: "Trending items you might like" },
-];
+let productsDiv = document.getElementById("products");// ab jo humne div banaya tha products ke liye wo hai yeh jisme cards bne huwe hain
+console.log(productsDiv);
+let cartDiv = document.getElementById("cart");  // yeh wo button hai jisme onclick lagaya hai
+let cartItemsDiv = document.getElementById("cart-items");
+let cartCount = document.getElementById("cart-count");
+let totalSpan = document.getElementById("total");
 
+/* Fetch products */
 async function fetchProducts() {
-  
-    const response = await fetch("https://fakestoreapi.com/products");
-    const products = await response.json();
+    let response = await fetch("https://fakestoreapi.com/products");
+    productsData = await response.json();
+    showProducts();  // jab tk hum isko idhar call nahi kren ghy items show nahi hou ghy
+}
+fetchProducts();
 
-    allSections.innerHTML = "";
+/* now this function shows the products*/
+function showProducts() {
+  let cardshow = "";
 
-    sections.forEach((section, index) => {
-      const sectionProducts = products.slice(index * 4, index * 4 + 4);
+  for (let i = 0; i < productsData.length; i++) {   // yeh tu card hai jisme image,desc saab show hou ghy,idhar concatenation ka concept lagaya hai
+    cardshow += `          
+      <div class="card">                       
+       <h3>${productsData[i].category}</h3>  
+        <img src="${productsData[i].image}">
+        <h4>${productsData[i].title}</h4>
+        <p class="amount">$${productsData[i].price}</p>
+        <p class="desc">${productsData[i].description}
+       
 
-      const sectionHTML = `
-        <div class="section-container mb-5" id="${section.title}">
-          <div class="d-flex justify-content-between align-items-end mb-4 section-header">
-            <div>
-              <h2 class="fw-bold m-0">${section.title}</h2>
-              <p class="text-muted m-0 small">${section.desc}</p>
-            </div>
-            <a href="#" class="btn btn-sm btn-link text-decoration-none fw-bold text-indigo">View All <i class="fa-solid fa-arrow-right ms-1"></i></a>
-          </div>
-          
-          <div class="row g-4">
-            ${sectionProducts
-              .map(
-                (product) => `
-              <div class="col-xl-3 col-lg-4 col-md-6">
-                <div class="modern-card">
-                  <div class="floating-actions">
-                    <button class="action-btn wishlist"><i class="fa-regular fa-heart"></i></button>
-                    <button class="action-btn quick-view"><i class="fa-solid fa-expand"></i></button>
-                  </div>
-                  
-                  <span class="category-badge">${product.category}</span>
-                  
-                  <div class="img-wrap">
-                    <img src="${product.image}" alt="${product.title}">
-                  </div>
-
-                  <div class="card-content">
-                    <div class="d-flex align-items-center mb-2">
-                        <div class="rating-box me-2">
-                            <i class="fa-solid fa-star"></i>
-                            <span>${
-                              product.rating ? product.rating.rate : "4.5"
-                            }</span>
-                        </div>
-                    </div>
-                    
-                    <h6 class="title" title="${product.title}">${
-                  product.title
-                }</h6>
-                    <p class="desc">${product.description.slice(0, 60)}...</p>
-                    
-                    <div class="card-footer-custom">
-                      <div class="price-box">
-                        <span class="currency">$</span>
-                        <span class="amount">${product.price}</span>
-                      </div>
-                      <button class="add-cart-btn" title="Add to Cart">
-                        <i class="fa-solid fa-plus"></i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            `
-              )
-              .join("")}
-          </div>
-        </div>
-      `;
-      allSections.innerHTML += sectionHTML;
-    });
-
+        <button onclick="addToCart(${productsData[i].id})">
+          Add to Cart
+        </button>
+      </div>
+    `;
   }
 
+  productsDiv.innerHTML = cardshow;
+}
 
-fetchProducts();
+/* Add to cart */
+function addToCart(id) {
+  let found = false;
+
+  for (let i = 0; i < cart.length; i++) {
+    if (cart[i].id === id) {
+      cart[i].qty++;
+      found = true;
+      break;
+    }
+  }
+
+  if (!found) {
+    const product = productsData.find(p => p.id === id);
+    cart.push({
+      id: product.id,
+      title: product.title,
+      price: product.price,
+      qty: 1
+    });
+  }
+
+  updateCart();
+}
+
+/* Update cart UI */
+function updateCart() {
+  let html = "";
+  let total = 0;
+
+  for (let i = 0; i < cart.length; i++) {
+    total += cart[i].price * cart[i].qty;
+
+    html += `
+      <div class="cart-item">
+        <h5>${cart[i].title}</h5>
+        <p>$${cart[i].price} × ${cart[i].qty}</p>
+        <button onclick="decreaseQty(${i})">-</button>
+        <button onclick="increaseQty(${i})">+</button>
+        <button onclick="removeFromCart(${i})">Remove</button>
+      </div>
+    `;
+  }
+
+  cartItemsDiv.innerHTML = html;
+  cartCount.innerText = cart.length;
+  totalSpan.innerText = total.toFixed(2);
+}
+
+/* Quantity controls */
+function increaseQty(index) {
+  cart[index].qty++;
+  updateCart();
+}
+
+function decreaseQty(index) {
+  if (cart[index].qty > 1) {
+    cart[index].qty--;
+  } else {
+    cart.splice(index, 1);
+  }
+  updateCart();
+}
+
+function removeFromCart(index) {
+  cart.splice(index, 1);
+  updateCart();
+}
+
+/* Toggle cart */
+function toggleCart() {
+  cartDiv.style.display =
+    cartDiv.style.display === "block" ? "none" : "block";
+}
