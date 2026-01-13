@@ -2,7 +2,7 @@ let cart=[]   // initially cart ki value empty hai,agar yeh nahi kro ghy tu wo a
 let productsData=[] //yeh products ko render krta hai
 
 let productsDiv = document.getElementById("products");// ab jo humne div banaya tha products ke liye wo hai yeh jisme cards bne huwe hain
-console.log(productsDiv);
+// console.log(productsDiv);
 let cartDiv = document.getElementById("cart");  // yeh wo button hai jisme onclick lagaya hai
 let cartItemsDiv = document.getElementById("cart-items");
 let cartCount = document.getElementById("cart-count");
@@ -11,59 +11,88 @@ let totalSpan = document.getElementById("total");
 /* Fetch products */
 async function fetchProducts() {
     let response = await fetch("https://fakestoreapi.com/products");
-    productsData = await response.json();
-    showProducts();  // jab tk hum isko idhar call nahi kren ghy items show nahi hou ghy
+    productsData = await response.json(); // yeh array hai products ka
+    showProducts(); // jab tk hum isko idhar call nahi kren ghy items show nahi hou ghy
 }
 fetchProducts();
 
-/* now this function shows the products*/
+/* now this function shows the products in the main screen*/
 function showProducts() {
-  let cardshow = "";
+  // Containers
+  const mensContainer = document.getElementById("mens-container");
+  const womensContainer = document.getElementById("womens-container");
+  const electronicsContainer = document.getElementById("electronics-container");
+  const jewelryContainer = document.getElementById("jewelry-container");
 
-  for (let i = 0; i < productsData.length; i++) {   // yeh tu card hai jisme image,desc saab show hou ghy,idhar concatenation ka concept lagaya hai
-    cardshow += `          
-      <div class="card">                       
-       <h3>${productsData[i].category}</h3>  
-        <img src="${productsData[i].image}">
-        <h4>${productsData[i].title}</h4>
-        <p class="amount">$${productsData[i].price}</p>
-        <p class="desc">${productsData[i].description}
-       
+  const copy = document.getElementById("product-card-template");
 
-        <button onclick="addToCart(${productsData[i].id})">
-          Add to Cart
-        </button>
-      </div>
-    `;
-  }
+  // Clear existing products
+  mensContainer.innerHTML = "";
+  womensContainer.innerHTML = "";
+  electronicsContainer.innerHTML = "";
+  jewelryContainer.innerHTML = "";
 
-  productsDiv.innerHTML = cardshow;
+  productsData.forEach(product => {
+    const card = copy.cloneNode(true);
+    card.style.display = "block";
+
+    card.querySelector(".category").textContent = product.category;
+    card.querySelector(".product-img").src = product.image;
+    card.querySelector(".title").textContent = product.title;
+    card.querySelector(".amount").textContent = `$${product.price}`;
+    card.querySelector(".desc").textContent = product.description;
+
+    card.querySelector(".add-btn").onclick = function() {
+      addToCart(product.id);
+    };
+
+    // Append based on category
+    switch (product.category.toLowerCase()) {
+      case "men's clothing":
+        mensContainer.appendChild(card);
+        break;
+      case "women's clothing":
+        womensContainer.appendChild(card);
+        break;
+      case "electronics":
+        electronicsContainer.appendChild(card);
+        break;
+      case "jewelery":
+        jewelryContainer.appendChild(card);
+        break;
+      default:
+        break;
+    }
+  });
 }
 
+
+
 /* Add to cart */
+// function addToCart(id) {
+//     let found = cart.find(item => item.id === id);
+//   if (found) {
+//     found.quantity++; // quantity plus hoti jae ghi jab bhi click kro ghy
+//   } else {
+//   let product = productsData.find(product => product.id === id);  //productsData array se wo product find karta hai jiska id given id ke barabar ho
+//   cart.push({...product, quantity: 1});  // copies all properties including image,idhar humne rest parameter lagaya hai
+// }
+//   updateCart();
+// }
 function addToCart(id) {
-  let found = false;
+  let found = cart.find(item => item.id === id);
 
-  for (let i = 0; i < cart.length; i++) {
-    if (cart[i].id === id) {
-      cart[i].qty++;
-      found = true;
-      break;
-    }
-  }
-
-  if (!found) {
-    const product = productsData.find(p => p.id === id);
-    cart.push({
-      id: product.id,
-      title: product.title,
-      price: product.price,
-      qty: 1
-    });
+  if (found) {
+    found.quantity++;
+  } else {
+    let product = productsData.find(product => product.id === id);
+    cart.push({ ...product, quantity: 1 });
   }
 
   updateCart();
+  showToast(); // ✅ BOOM — toast here
 }
+
 
 /* Update cart UI */
 function updateCart() {
@@ -71,46 +100,79 @@ function updateCart() {
   let total = 0;
 
   for (let i = 0; i < cart.length; i++) {
-    total += cart[i].price * cart[i].qty;
+    let item = cart[i];
+    total += item.price * item.quantity;
 
     html += `
       <div class="cart-item">
-        <h5>${cart[i].title}</h5>
-        <p>$${cart[i].price} × ${cart[i].qty}</p>
-        <button onclick="decreaseQty(${i})">-</button>
-        <button onclick="increaseQty(${i})">+</button>
-        <button onclick="removeFromCart(${i})">Remove</button>
+        <img src="${item.image}" class="item-img" />
+        <div class="item-info">
+          <h5>${item.title}</h5>
+          <p>$${item.price} x ${item.quantity}</p>
+        </div>
+        <div class="item-buttons">
+          <button onclick="decreaseQty(${i})" class="decrease-btn">-</button>
+          <button onclick="increaseQty(${i})" class="increase-btn">+</button>
+          <button onclick="removeFromCart(${i})" class="remove-btn">Remove</button>
+        </div>
       </div>
     `;
   }
 
-  cartItemsDiv.innerHTML = html;
+  cartItemsDiv.innerHTML = html;    // yeh cart ka variable banaya hai humne yeh wo hai
   cartCount.innerText = cart.length;
-  totalSpan.innerText = total.toFixed(2);
+  totalSpan.innerText = total;  // yeh total amount batae gha humhe
 }
 
+
 /* Quantity controls */
-function increaseQty(index) {
-  cart[index].qty++;
+function increaseQty(i) {
+  cart[i].quantity++;
   updateCart();
 }
 
-function decreaseQty(index) {
-  if (cart[index].qty > 1) {
-    cart[index].qty--;
+function decreaseQty(i) {
+  if (cart[i].quantity > 1) {   // yeh decrease krne ke liye hai
+    cart[i].quantity--;
   } else {
-    cart.splice(index, 1);
+    cart.splice(i, 1);
   }
   updateCart();
 }
 
-function removeFromCart(index) {
-  cart.splice(index, 1);
+function removeFromCart(hasan) {
+  cart.splice(hasan, 1);
   updateCart();
 }
 
-/* Toggle cart */
-function toggleCart() {
-  cartDiv.style.display =
-    cartDiv.style.display === "block" ? "none" : "block";
+// toggle cart hai yeh clickable
+function toggleCart() {   // isi se open and close horha hai cart button
+  cartDiv.style.display = 
+  cartDiv.style.display === "block" ? "none" : "block";
 }
+
+
+// proceed pr click kro tu redirect krde login pr
+function proceed() {
+    alert("Login First Then proceed");
+    window.location.href = "login.html"; 
+}
+
+
+//toast
+function showToast() {
+  let toastEl = document.getElementById('cartToast');
+  let toast = new bootstrap.Toast(toastEl, { delay: 2000 });
+  toast.show();
+}
+
+
+  function debounce(fn, delay) {
+    let timer;
+    return function(...args) {
+      if (timer) clearTimeout(timer); // time clear kro aik sec ke baad
+      setTimeout(() => {
+        fn(...args);
+      }, 1000);
+    };
+  }
