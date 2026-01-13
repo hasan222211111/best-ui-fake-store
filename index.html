@@ -4,28 +4,56 @@
   <meta charset="UTF-8">
   <title>Systems Limited</title>
   <link rel="stylesheet" href="style.css">
-   <link rel="icon"  href="src/pictures/icon.avif"> 
+   <link rel="icon"  href="/pictures/icon.avif"> 
    <link rel="stylesheet"href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
-
+     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
 </head>
 <body>
    <!--this is nav-bar section-->
-  <nav class="nav-bar">
-    <a href="#" class="heading">SYSTEMS <span class="icon-blue">LIMITED.</span></a> 
-     <a class="clickable-link" href="#container">Home</a>
-    <a class="clickable-link" href="#container">Featured</a>     
-     <a class="clickable-link" href="#container">New Arrivals</a>
-     <a class="clickable-link" href="#container">Best Sellers</a>
-     <a class="clickable-link" href="#container">On Sale</a>
-     <a class="clickable-link " href="#container">Recommended</a>
+     <body id="container">
+    <nav class="navbar navbar-expand-lg fixed-top navbar-custom">
+      <div class="container">
+        <a class="navbar-brand fw-bold fs-3" href="#">
+          MODERN<span class="text-accent">SHOP</span><span class="dot">.</span>
+        </a>
+
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+          <span class="navbar-toggler-icon"></span>
+ </button>
+ <!-- Search Bar Section -->
+       <div id="search" class="search-container">
+       <input type="text" id="search-input" placeholder="Search products here..." />
+        <button id="search-btn">Search</button>
+        <div class="search-suggestions" id="search-suggestions" style="display: none;"></div>
+        </div>
+<!-- Search Bar Section -->
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto align-items-center">
+          <a class="nav-link" href="#mens-clothing">Men's Clothing</a>
+          <a class="nav-link" href="#womens-clothing">Women's Clothing</a>
+          <a class="nav-link" href="#electronics">Electronics</a>
+          <a class="nav-link" href="#jewelry">Jewelry</a>
+
+         <!--  Login & Sign Up buttons -->
+     <li> <div class="auth-buttons">
+     <a href="login.html" class="btn-login">Login</a> 
+     <a href="signup.html" class="btn-signup">Sign Up</a>
+   </div> </li>
+        <!-- Login & Sign Up buttons -->
 
      <!-- yeh cart button hai -->
-    <div class="cart-button" onclick="toggleCart()">
+    <li><div class="cart-button" onclick="toggleCart()">
       🛒 Cart (<span id="cart-count">0</span>)
-    </div>
-    <!-- yeh cart button hai -->
-  </nav>
+    </div> </li>
+    <!--yeh cart button hai --> 
+        </ul>
+      </div>
+      </div>
+    </nav>
    <!--this is nav-bar section-->
+
+
 
   <!-- yeh nav-bar se neche hero section hai jisme demo image hai -->
    <header class="hero-wrapper">
@@ -66,25 +94,75 @@
     </header>
  <!-- yeh nav-bar se neche hero section hai jisme demo image hai -->
    
- <!--isme products show hou ghy-->
 
-  <div id="products"></div>
+ <!--yeh section ban raha hai-->
+<section id="mens-clothing">
+  <h2>Men's Clothing</h2>
+  <div class="product-container" id="mens-container"></div>
+</section>
 
-   <!--isme products show hou ghy-->
+<section id="womens-clothing">
+  <h2>Women's Clothing</h2>
+  <div class="product-container" id="womens-container"></div>
+</section>
 
+<section id="electronics">
+  <h2>Electronics</h2>
+  <div class="product-container" id="electronics-container"></div>
+</section>
+
+<section id="jewelry" >
+  <h2>Jewelery</h2>
+  <div class="product-container" id="jewelry-container"></div>
+</section>
+
+ <!--yeh section ban raha hai-->
+
+
+   <!-- yeh hamara product card hai  -->
+    <div id="product-container"></div>
+
+  <div class="card" id="product-card-template" style="display: none;">
+     <h3 class="category"></h3>
+     <img class="product-img" />
+     <h4 class="title"></h4>
+     <p class="amount"></p>
+     <p class="desc" id="desription"></p>
+    <button class="add-btn">Add to Cart</button>
+
+     <!--yeh hamara alert hai jab hum add to cart kren ghy-->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div id="cartToast" class="toast align-items-center text-bg-success border-0" role="alert">
+    <div class="d-flex">
+      <div class="toast-body">
+        Your item is added to cart
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>
+  </div>
+</div>
+    <!--yeh hamara alert hai jab hum add to cart kren ghy-->
+ </div>
+    <!-- yeh hamara product card hai  -->
+
+
+
+   <!--yeh cart ke andar wala page hai-->
   <div id="cart">
     <button class="close" onclick="toggleCart()">Close</button>
     <h3>Your Cart</h3>
     <div id="cart-items"></div>
     <h4>Total: $<span id="total">0</span></h4>
+     <button class="checkout-btn" onclick="proceed()">Proceed to Checkout</button>
   </div>
-   <!--isme products show hou ghy-->
+   <!--yeh cart ke andar wala page hai-->
 
 
   <!-- yeh footer ka section hai jo saab se last mein nazar aye gha-->
   <footer class="main-footer">
   <div class="footer-container">
     <div class="footer-grid">
+
       
       <!-- Brand -->
       <div class="footer-brand">
@@ -157,5 +235,7 @@
 </footer>
   <!-- yeh footer ka section hai jo saab se last mein nazar aye gha-->
   <script src="app.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
